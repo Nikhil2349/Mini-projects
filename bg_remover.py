@@ -1,6 +1,6 @@
 import streamlit as st
 from rembg import remove
-from PIL import Image
+from PIL import Image, ImageFilter
 import io
 import zipfile
 import os
@@ -16,48 +16,46 @@ if uploaded_files:
     os.makedirs(temp_dir, exist_ok=True)
 
     for uploaded_file in uploaded_files:
-        # Open original image
+        # Open image and ensure correct format
         image = Image.open(uploaded_file).convert("RGBA")
-
-        # Remove background
+        
+        # Convert to bytes for rembg processing
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array = img_byte_array.getvalue()
-        output = remove(img_byte_array)
 
-        # Open output image
+        # Remove background
+        output = remove(img_byte_array)
         output_image = Image.open(io.BytesIO(output)).convert("RGBA")
 
-        # Add white background for JPG format (avoiding transparency issues)
+        # Edge Smoothing: Apply slight Gaussian Blur to smooth edges
+        output_image = output_image.filter(ImageFilter.GaussianBlur(0.5))
+
+        # Create a white background (for non-transparent output)
         white_bg = Image.new("RGBA", output_image.size, (255, 255, 255, 255))
         white_bg.paste(output_image, (0, 0), output_image)
         final_image = white_bg.convert("RGB")
 
-        # Resize with highest quality resampling
-        final_image = final_image.resize((200, 200), Image.Resampling.LANCZOS)
+        # High-Quality Resizing to 200x200 pixels
+        final_image = final_image.resize((200, 200), Image.LANCZOS)
 
-        # Convert to high-quality JPG format
+        # Convert to high-quality JPG
         jpg_filename = os.path.splitext(uploaded_file.name)[0] + ".jpg"
         final_image_path = os.path.join(temp_dir, jpg_filename)
 
-        final_image.save(
-            final_image_path,
-            format="JPEG",
-            quality=100,  # Maximum quality
-            subsampling=0,  # No color compression
-            optimize=False,  # Avoid aggressive compression
-        )
-        
+        # Save JPG with minimal quality loss
+        final_image.save(final_image_path, format="JPEG", quality=100, optimize=True, subsampling=0)
+
         final_images.append(final_image_path)
 
-        # Display images
+        # Display before and after images
         col1, col2 = st.columns([1, 1])
         with col1:
             st.image(image, caption=f"Original Image: {uploaded_file.name}", use_container_width=True)
         with col2:
             st.image(final_image, caption=f"Resized & High-Quality JPG: {jpg_filename}", use_container_width=True)
 
-    # Create a ZIP file for download
+    # Create and provide ZIP download option
     if final_images:
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
