@@ -5,7 +5,6 @@ import io
 import zipfile
 import os
 
-st.set_option("server.maxUploadSize", 300)
 st.title("Image Background Remover")
 
 uploaded_files = st.file_uploader("Choose image files", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
