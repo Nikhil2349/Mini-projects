@@ -5,7 +5,7 @@ import io
 import zipfile
 import os
 
-st.title("High-Quality Background Remover & Resizer")
+st.title("Image Background Remover")
 
 uploaded_files = st.file_uploader("Choose image files", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
