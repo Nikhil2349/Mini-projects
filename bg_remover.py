@@ -5,7 +5,7 @@ import io
 import zipfile
 import os
 
-st.title("Image Background Remover")
+st.title("High-Quality Background Remover & Resizer")
 
 uploaded_files = st.file_uploader("Choose image files", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
@@ -65,7 +65,7 @@ if uploaded_files:
 
         zip_buffer.seek(0)
         st.download_button(
-            label="Download All Images (JPG)",
+            label=f"Download All Images ({len(final_images)})",
             data=zip_buffer,
             file_name="final_images.zip",
             mime="application/zip"
