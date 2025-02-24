@@ -34,9 +34,10 @@ if uploaded_files:
         # Resize image to 200x200 pixels
         final_image = final_image.resize((200, 200))
 
-        # Save image
-        final_image_path = os.path.join(temp_dir, f"{uploaded_file.name}")
-        final_image.save(final_image_path)
+        # Convert to JPG format and save
+        jpg_filename = os.path.splitext(uploaded_file.name)[0] + ".jpg"  # Change extension to .jpg
+        final_image_path = os.path.join(temp_dir, jpg_filename)
+        final_image.save(final_image_path, format="JPEG")  # Save explicitly as JPG
         final_images.append(final_image_path)
 
         # Display images
@@ -44,7 +45,7 @@ if uploaded_files:
         with col1:
             st.image(image, caption=f"Original Image: {uploaded_file.name}", use_container_width=True)
         with col2:
-            st.image(final_image, caption=f"Resized Image (200x200): {uploaded_file.name}", use_container_width=True)
+            st.image(final_image, caption=f"Resized & Converted to JPG: {jpg_filename}", use_container_width=True)
 
     # Create and provide ZIP download option
     if final_images:
@@ -55,7 +56,7 @@ if uploaded_files:
 
         zip_buffer.seek(0)
         st.download_button(
-            label="Download All Images",
+            label="Download All Images (JPG)",
             data=zip_buffer,
             file_name="final_images.zip",
             mime="application/zip"
