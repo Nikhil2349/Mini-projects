@@ -32,12 +32,12 @@ if uploaded_files:
         final_image = white_bg.convert("RGB")
 
         # Resize image to 200x200 pixels
-        final_image = final_image.resize((200, 200))
+        final_image = final_image.resize((200, 200), Image.LANCZOS)  # Best resampling method
 
-        # Convert to JPG format and save
+        # Convert to JPG format and save with high quality
         jpg_filename = os.path.splitext(uploaded_file.name)[0] + ".jpg"  # Change extension to .jpg
         final_image_path = os.path.join(temp_dir, jpg_filename)
-        final_image.save(final_image_path, format="JPEG")  # Save explicitly as JPG
+        final_image.save(final_image_path, format="JPEG", quality=95, optimize=True, subsampling=0)  # High-quality settings
         final_images.append(final_image_path)
 
         # Display images
@@ -45,7 +45,7 @@ if uploaded_files:
         with col1:
             st.image(image, caption=f"Original Image: {uploaded_file.name}", use_container_width=True)
         with col2:
-            st.image(final_image, caption=f"Resized & Converted to JPG: {jpg_filename}", use_container_width=True)
+            st.image(final_image, caption=f"Resized & High-Quality JPG: {jpg_filename}", use_container_width=True)
 
     # Create and provide ZIP download option
     if final_images:
